@@ -27,11 +27,8 @@ namespace Billeasy_Exam
             string extension = Path.GetExtension(openFileDialog1.FileName);
             DateTime dateTime = DateTime.Now;
             string name = dateTime.ToString("dd_MM_yyyy_HH_MM_ss");
-
             File.Copy(FileName, @"C:\Users\Snigdha Patwatkar\Downloads\" + name + extension);
             MessageBox.Show("File saved in downloads folder successfully.");
-
-
         }
 
         private void button2_Click(object sender, EventArgs e)
