@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.Data.Common;
+using System.IO;
 
 namespace Billeasy_Exam
 {
@@ -22,86 +23,53 @@ namespace Billeasy_Exam
 
         private void button1_Click(object sender, EventArgs e)
         {
-            using (var conn = new SQLiteConnection("Data Source=db/Exam_db.db"))
+            Form1 form = new Form1();
+            DataTable dt = Authenticate(txtUserName.Text, txtPassword.Text);
+            if (dt.Rows.Count > 0)
             {
-                conn.Open();
-                var command = conn.CreateCommand();
-                command.CommandText = @"Select * from login where UserName=@username AND Password=@password";
-                command.Parameters.AddWithValue("@username", txtUserName.Text);
-                command.Parameters.AddWithValue("@password", txtPassword.Text);
-                int result = 0;
-                result = command.ExecuteNonQuery();
-                conn.Close();
-                if(result == 0)
-                {
-                    MessageBox.Show("Invalid User");
-                }
-                else
-                {
-                    MessageBox.Show("User Logged in successfully!");
-                    Form1 form = new Form1();
-                    form.Show();
-                    this.Hide();
-                }
-                
-
-                //string a = "abcd";
-                //string b = "abcd";
-                //if(a==txtUserName.Text && b == txtPassword.Text)
-                //{
-                //    MessageBox.Show("User Logged in successfully!");
-                //    form.Show();
-                //    this.Hide();
-                //}
-                //else
-                //{
-                //    MessageBox.Show("Invalid User");
-                //}
+                MessageBox.Show("User Logged in successfully!");
+                form.Show();
+                this.Hide();
             }
-
+            else
+            {
+                MessageBox.Show("Invalid User!");
+            }
         }
 
         private void txtPassword_KeyPress(object sender, KeyPressEventArgs e)
         {
+            Form1 form = new Form1();
             if (e.KeyChar == (char)Keys.Enter)
             {
-                using (var conn = new SQLiteConnection("Data Source=db/Exam_db.db"))
+                DataTable dt = Authenticate(txtUserName.Text, txtPassword.Text);
+                if (dt.Rows.Count > 0)
                 {
-                    conn.Open();
-                    var command = conn.CreateCommand();
-                    command.CommandText = @"Select * from login where UserName=@username AND Password=@password";
-                    command.Parameters.AddWithValue("@username", txtUserName.Text);
-                    command.Parameters.AddWithValue("@password", txtPassword.Text);
-                    int result = 0;
-                    result = command.ExecuteNonQuery();
-                    conn.Close();
-                    if (result == 0)
-                    {
-                        MessageBox.Show("Invalid User");
-                    }
-                    else
-                    {
-                        MessageBox.Show("User Logged in successfully!");
-                        Form1 form = new Form1();
-                        form.Show();
-                        this.Hide();
-                    }
-
-
-                    //string a = "abcd";
-                    //string b = "abcd";
-                    //if(a==txtUserName.Text && b == txtPassword.Text)
-                    //{
-                    //    MessageBox.Show("User Logged in successfully!");
-                    //    form.Show();
-                    //    this.Hide();
-                    //}
-                    //else
-                    //{
-                    //    MessageBox.Show("Invalid User");
-                    //}
+                    MessageBox.Show("User Logged in successfully!");
+                    form.Show();
+                    this.Hide();
+                }
+                else
+                {
+                    MessageBox.Show("Invalid User!");
                 }
             }
+        }
+
+        public DataTable Authenticate(string username, string password)
+        {
+            DataTable dt = new DataTable();
+            string connectionString = @"db\Exam_db.db";
+
+            SQLiteConnection con = new SQLiteConnection("Data Source=" + Path.Combine(Directory.GetCurrentDirectory(), connectionString));
+            var cmd = new SQLiteCommand(con);
+            cmd.CommandText = "select * from login where UserName=@username and Password=@password";
+            cmd.Parameters.AddWithValue("@username", username);
+            cmd.Parameters.AddWithValue("@password", password);
+            SQLiteDataAdapter sda = new SQLiteDataAdapter(cmd);
+            sda.Fill(dt);
+            return dt;
+
         }
     }
 }
