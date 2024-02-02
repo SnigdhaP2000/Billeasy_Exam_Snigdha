@@ -132,7 +132,7 @@ namespace Billeasy_Exam
                         "/" + fileName,
                         WriteMode.Overwrite.Instance,
                         body: mem);
-                        Console.WriteLine("Uploaded file: " + updated.Name);
+                        MessageBox.Show("Uploaded file: " + updated.Name);
 
                     }
                     catch (Exception ex)
@@ -199,11 +199,34 @@ namespace Billeasy_Exam
         }
         private void timer2_Tick(object sender, EventArgs e)
         {
-            AccessToken = File.ReadAllText(TokenFile);
-            if(AccessToken == null||AccessToken!="")
+            if (File.Exists(TokenFile))
             {
-                exceptionOccured = false;
+                AccessToken = File.ReadAllText(TokenFile);
             }
+            else
+            {
+                string folderPath = @"AccessToken"; // Replace with the desired folder path
+
+                try
+                {
+                    // Check if the folder doesn't exist, then create it
+                    if (!Directory.Exists(folderPath))
+                    {
+                        Directory.CreateDirectory(folderPath);
+                        MessageBox.Show("Folder created successfully!");
+                    }
+               
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error creating folder: {ex.Message}");
+                }
+            }
+                if (AccessToken == null || AccessToken != "")
+                {
+                    exceptionOccured = false;
+                }
+           
 
         }
     }
