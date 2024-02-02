@@ -32,11 +32,18 @@ namespace Billeasy_Exam
                 int result = 0;
                 result = command.ExecuteNonQuery();
                 conn.Close();
-
-                MessageBox.Show("User Logged in successfully!");
-                Form1 form = new Form1();
-                form.Show();
-                this.Hide();
+                if(result == 0)
+                {
+                    MessageBox.Show("Invalid User");
+                }
+                else
+                {
+                    MessageBox.Show("User Logged in successfully!");
+                    Form1 form = new Form1();
+                    form.Show();
+                    this.Hide();
+                }
+                
 
                 //string a = "abcd";
                 //string b = "abcd";
