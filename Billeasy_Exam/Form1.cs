@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dropbox.Api;
+using Dropbox.Api.Files;
 
 namespace Billeasy_Exam
 {
@@ -24,7 +26,6 @@ namespace Billeasy_Exam
         string currFile = "";
         private void button1_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = "Files|*.jpg;*.jpeg;*.png;*.pdf;*.xlsx";
             if (openFileDialog1.ShowDialog() == DialogResult.OK) // Test result.
             {
                 string FileName = openFileDialog1.FileName;
@@ -38,11 +39,9 @@ namespace Billeasy_Exam
                 //File.Copy(FileName, path + name + extension);
             }
         }
-
         
         private void button2_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = "Files|*.jpg;*.jpeg;*.png;*.pdf;*.xlsx";
             openFileDialog1.Multiselect = true;
             if (openFileDialog1.ShowDialog() == DialogResult.OK) // Test result.
             {
@@ -86,7 +85,7 @@ namespace Billeasy_Exam
             filePreview.Invalidate();
         }
 
-        protected void save_button_Click(object sender, EventArgs e)
+        protected async void save_button_Click(object sender, EventArgs e)
         {
             Button button = sender as Button;
 
@@ -94,6 +93,7 @@ namespace Billeasy_Exam
             if (CheckConnectivity)
             {
                 MessageBox.Show("Connected");
+                await UploadFileToDropbox(currFile);
             }
             else
             {
@@ -103,14 +103,33 @@ namespace Billeasy_Exam
             //MessageBox.Show(newformat + currFile);
         }
 
-        //Creating the extern function...  
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
-        //Creating a function that uses the API function...  
         public static bool IsConnectedToInternet()
         {
             int Desc;
             return InternetGetConnectedState(out Desc, 0);
         }
+
+        private async Task UploadFileToDropbox(string filePath)
+        {
+            using (var dbx = new DropboxClient("sl.Bu0C52oO45zDjIR9zGOaNNUlXZqfbvbZHTxRdNQJGR7QmOvoYloZ7Sl9zk4Uc4Zi-1LTQ4NdGVkJMIYQWgvOl4eOfBHjT8wf88_8x6ymZwc56PXW5pWBps4JTdbCXfewN6M6zZ9WHBT8"))
+            {
+                var fileName = Path.GetFileName(filePath);
+                var fileContent = File.ReadAllBytes(filePath);
+
+                using (var mem = new MemoryStream(fileContent))
+                {
+                    var updated = await dbx.Files.UploadAsync(
+                        "/" + fileName,
+                        WriteMode.Overwrite.Instance,
+                        body: mem);
+
+                    Console.WriteLine("Uploaded file: " + updated.Name);
+                }
+            }
+        }
+
     }
+
 }
