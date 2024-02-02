@@ -27,7 +27,8 @@ namespace Billeasy_Exam
             string extension = Path.GetExtension(openFileDialog1.FileName);
             DateTime dateTime = DateTime.Now;
             string name = dateTime.ToString("dd_MM_yyyy_HH_MM_ss");
-            File.Copy(FileName, @"C:\Users\Snigdha Patwatkar\Downloads\" + name + extension);
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Downloads\";
+            File.Copy(FileName, path + name + extension);
             MessageBox.Show("File saved in downloads folder successfully.");
         }
 
@@ -43,8 +44,8 @@ namespace Billeasy_Exam
                 string extension = Path.GetExtension(item);
                 DateTime dateTime = DateTime.Now;
                 string name = dateTime.ToString("dd_MM_yyyy_HH_MM_ss");
-
-                File.Copy(item, @"C:\Users\Snigdha Patwatkar\Downloads\" + name + "_" + count + extension);
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Downloads\";
+                File.Copy(item, path + name + "_" + count + extension);
             }
             MessageBox.Show("All Files saved in downloads folder successfully.");
         }
