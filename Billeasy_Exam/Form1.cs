@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dropbox.Api;
@@ -26,7 +27,7 @@ namespace Billeasy_Exam
         string currFile = "";
         private void button1_Click(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK) // Test result.
+            if (openFileDialog1.ShowDialog() == DialogResult.OK) 
             {
                 string FileName = openFileDialog1.FileName;
                 currFile = FileName;
@@ -36,14 +37,13 @@ namespace Billeasy_Exam
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\";
                 newformat = FileName + path + name + extension;
                 CreatePreview();
-                //File.Copy(FileName, path + name + extension);
             }
         }
-        
+
         private void button2_Click(object sender, EventArgs e)
         {
             openFileDialog1.Multiselect = true;
-            if (openFileDialog1.ShowDialog() == DialogResult.OK) // Test result.
+            if (openFileDialog1.ShowDialog() == DialogResult.OK) 
             {
                 int count = 0;
                 foreach (string item in openFileDialog1.FileNames)
@@ -57,9 +57,7 @@ namespace Billeasy_Exam
                     string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\";
                     newformat = item + path + name + extension;
                     CreatePreview();
-                    //File.Copy(item, path + name + "_" + count + extension);
                 }
-                MessageBox.Show("All Files saved in your documents folder successfully.");
             }
         }
 
@@ -77,7 +75,7 @@ namespace Billeasy_Exam
             Panel p = new Panel();
             p.Name = currFile;
             p.BackColor = Color.FromArgb(123, R.Next(222), R.Next(222));
-            p.Size = new Size(filePreview.ClientSize.Width-15, 50);
+            p.Size = new Size(filePreview.ClientSize.Width - 15, 50);
             filePreview.Controls.Add(p);
             filePreview.Controls.SetChildIndex(p, 0);
             p.Paint += (ss, ee) => { ee.Graphics.DrawString(p.Name, Font, Brushes.White, 22, 11); };
@@ -88,19 +86,25 @@ namespace Billeasy_Exam
         protected async void save_button_Click(object sender, EventArgs e)
         {
             Button button = sender as Button;
-
+            
             bool CheckConnectivity = IsConnectedToInternet();
-            if (CheckConnectivity)
+            if (CheckConnectivity && !exceptionOccured)
             {
-                MessageBox.Show("Connected");
-                await UploadFileToDropbox(currFile);
+                if (sender is Control control)
+                {
+                    Panel parentPanel = control.Parent as Panel;
+                    MessageBox.Show("Connected");
+                    await UploadFileToDropbox(parentPanel.Name);
+                }
+                
             }
             else
             {
                 MessageBox.Show("Not Connected");
+                CacheLocally();
+
             }
-            
-            //MessageBox.Show(newformat + currFile);
+
         }
 
         [DllImport("wininet.dll")]
@@ -113,23 +117,95 @@ namespace Billeasy_Exam
 
         private async Task UploadFileToDropbox(string filePath)
         {
-            using (var dbx = new DropboxClient("sl.Bu0C52oO45zDjIR9zGOaNNUlXZqfbvbZHTxRdNQJGR7QmOvoYloZ7Sl9zk4Uc4Zi-1LTQ4NdGVkJMIYQWgvOl4eOfBHjT8wf88_8x6ymZwc56PXW5pWBps4JTdbCXfewN6M6zZ9WHBT8"))
+            if (!exceptionOccured) { 
+                using (var dbx = new DropboxClient(AccessToken))
             {
                 var fileName = Path.GetFileName(filePath);
                 var fileContent = File.ReadAllBytes(filePath);
 
+
                 using (var mem = new MemoryStream(fileContent))
                 {
-                    var updated = await dbx.Files.UploadAsync(
+                    try
+                    {   
+                        var updated = await dbx.Files.UploadAsync(
                         "/" + fileName,
                         WriteMode.Overwrite.Instance,
                         body: mem);
+                        Console.WriteLine("Uploaded file: " + updated.Name);
 
-                    Console.WriteLine("Uploaded file: " + updated.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptionOccured = true;
+                            try
+                            {
+                                using (StreamWriter sw = new StreamWriter(TokenFile, false))
+                                {
+                                    sw.Write(string.Empty);
+                                }
+
+                                Console.WriteLine($"Content inside the text file '{filePath}' deleted.");
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Error deleting content: {e.Message}");
+                            }
+                            MessageBox.Show("Token Expired, please contact administrator");
+                    }
+                    
+
                 }
             }
+            }
         }
+        bool exceptionOccured=false;
+        static readonly string TokenFile = AppDomain.CurrentDomain.BaseDirectory + @"AccessToken\Token.txt";
+        string AccessToken = "";
 
+        public async Task CacheLocally()
+        {
+            string appDirectory = AppDomain.CurrentDomain.BaseDirectory+@"cache\"+DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")+ Path.GetExtension(currFile);
+
+            if (File.Exists(currFile))
+            {
+                File.Copy(currFile, appDirectory, true);
+            }
+        }
+        
+
+        string CacheFolder = AppDomain.CurrentDomain.BaseDirectory + @"cache\";
+
+       
+        private async void timer1_Tick(object sender, EventArgs e)
+        {
+            bool checkConnectivity = IsConnectedToInternet();
+            if (checkConnectivity)
+            {
+                string[] files = Directory.GetFiles(CacheFolder);
+
+                HashSet<string> fileNames = new HashSet<string>(files.Length);
+                if (files.Length > 0 && !exceptionOccured)
+                {
+                    foreach (var filePath in files)
+                    {
+                        await UploadFileToDropbox(filePath);
+                        File.Delete(filePath);
+                    }
+                    
+                }
+
+            }
+        }
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            AccessToken = File.ReadAllText(TokenFile);
+            if(AccessToken == null||AccessToken!="")
+            {
+                exceptionOccured = false;
+            }
+
+        }
     }
 
 }

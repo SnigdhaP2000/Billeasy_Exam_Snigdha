@@ -28,14 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.buttons = new System.Windows.Forms.FlowLayoutPanel();
             this.filePreview = new System.Windows.Forms.FlowLayoutPanel();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -86,23 +88,25 @@
             this.panel1.Size = new System.Drawing.Size(859, 63);
             this.panel1.TabIndex = 3;
             // 
-            // buttons
-            // 
-            this.buttons.AutoScroll = true;
-            this.buttons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.buttons.Location = new System.Drawing.Point(0, 382);
-            this.buttons.Name = "buttons";
-            this.buttons.Size = new System.Drawing.Size(859, 86);
-            this.buttons.TabIndex = 4;
-            // 
             // filePreview
             // 
             this.filePreview.AutoScroll = true;
             this.filePreview.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.filePreview.Location = new System.Drawing.Point(0, 191);
+            this.filePreview.Location = new System.Drawing.Point(0, 290);
             this.filePreview.Name = "filePreview";
-            this.filePreview.Size = new System.Drawing.Size(859, 191);
+            this.filePreview.Size = new System.Drawing.Size(859, 178);
             this.filePreview.TabIndex = 5;
+            // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // timer2
+            // 
+            this.timer2.Enabled = true;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // Form1
             // 
@@ -110,7 +114,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(859, 468);
             this.Controls.Add(this.filePreview);
-            this.Controls.Add(this.buttons);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -131,8 +134,9 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.FlowLayoutPanel buttons;
         private System.Windows.Forms.FlowLayoutPanel filePreview;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer timer2;
     }
 }
 
