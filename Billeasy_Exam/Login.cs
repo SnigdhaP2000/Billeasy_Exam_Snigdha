@@ -28,8 +28,7 @@ namespace Billeasy_Exam
             if (dt.Rows.Count > 0)
             {
                 MessageBox.Show("User Logged in successfully!");
-                form.Show();
-                this.Hide();
+                this.Close();
             }
             else
             {
@@ -46,8 +45,7 @@ namespace Billeasy_Exam
                 if (dt.Rows.Count > 0)
                 {
                     MessageBox.Show("User Logged in successfully!");
-                    form.Show();
-                    this.Hide();
+                    this.Close();
                 }
                 else
                 {
@@ -70,6 +68,11 @@ namespace Billeasy_Exam
             sda.Fill(dt);
             return dt;
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

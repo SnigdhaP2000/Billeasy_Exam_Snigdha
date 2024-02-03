@@ -27,7 +27,7 @@ namespace Billeasy_Exam
         string currFile = "";
         private void button1_Click(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK) 
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string FileName = openFileDialog1.FileName;
                 currFile = FileName;
@@ -37,13 +37,14 @@ namespace Billeasy_Exam
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\";
                 newformat = FileName + path + name + extension;
                 CreatePreview();
+                button3.Visible = true;
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             openFileDialog1.Multiselect = true;
-            if (openFileDialog1.ShowDialog() == DialogResult.OK) 
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 int count = 0;
                 foreach (string item in openFileDialog1.FileNames)
@@ -58,6 +59,7 @@ namespace Billeasy_Exam
                     newformat = item + path + name + extension;
                     CreatePreview();
                 }
+                button3.Visible = true;
             }
         }
 
@@ -86,7 +88,7 @@ namespace Billeasy_Exam
         protected async void save_button_Click(object sender, EventArgs e)
         {
             Button button = sender as Button;
-            
+
             bool CheckConnectivity = IsConnectedToInternet();
             if (CheckConnectivity && !exceptionOccured)
             {
@@ -96,7 +98,7 @@ namespace Billeasy_Exam
                     MessageBox.Show("Connected");
                     await UploadFileToDropbox(parentPanel.Name);
                 }
-                
+
             }
             else
             {
@@ -117,27 +119,28 @@ namespace Billeasy_Exam
 
         private async Task UploadFileToDropbox(string filePath)
         {
-            if (!exceptionOccured) { 
-                using (var dbx = new DropboxClient(AccessToken))
+            if (!exceptionOccured)
             {
-                var fileName = Path.GetFileName(filePath);
-                var fileContent = File.ReadAllBytes(filePath);
-
-
-                using (var mem = new MemoryStream(fileContent))
+                using (var dbx = new DropboxClient(AccessToken))
                 {
-                    try
-                    {   
-                        var updated = await dbx.Files.UploadAsync(
-                        "/" + fileName,
-                        WriteMode.Overwrite.Instance,
-                        body: mem);
-                        MessageBox.Show("Uploaded file: " + updated.Name);
+                    var fileName = Path.GetFileName(filePath);
+                    var fileContent = File.ReadAllBytes(filePath);
 
-                    }
-                    catch (Exception ex)
+
+                    using (var mem = new MemoryStream(fileContent))
                     {
-                        exceptionOccured = true;
+                        try
+                        {
+                            var updated = await dbx.Files.UploadAsync(
+                            "/" + fileName,
+                            WriteMode.Overwrite.Instance,
+                            body: mem);
+                            //MessageBox.Show("Uploaded file: " + updated.Name);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            exceptionOccured = true;
                             try
                             {
                                 using (StreamWriter sw = new StreamWriter(TokenFile, false))
@@ -152,33 +155,30 @@ namespace Billeasy_Exam
                                 Console.WriteLine($"Error deleting content: {e.Message}");
                             }
                             MessageBox.Show("Token Expired, please contact administrator");
-                    }
-                    
+                        }
 
+
+                    }
                 }
             }
-            }
         }
-        bool exceptionOccured=false;
+        bool exceptionOccured = false;
         static readonly string TokenFile = AppDomain.CurrentDomain.BaseDirectory + @"AccessToken\Token.txt";
         string AccessToken = "";
 
         public async Task CacheLocally()
         {
-            string appDirectory = AppDomain.CurrentDomain.BaseDirectory+@"cache\"+DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")+ Path.GetExtension(currFile);
+            string appDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\cache_files\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss") + Path.GetExtension(currFile);
 
             if (File.Exists(currFile))
             {
                 File.Copy(currFile, appDirectory, true);
             }
         }
-        
 
-        string CacheFolder = AppDomain.CurrentDomain.BaseDirectory + @"cache\";
-
-       
         private async void timer1_Tick(object sender, EventArgs e)
         {
+            string CacheFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\cache_files";
             bool checkConnectivity = IsConnectedToInternet();
             if (checkConnectivity)
             {
@@ -192,7 +192,7 @@ namespace Billeasy_Exam
                         await UploadFileToDropbox(filePath);
                         File.Delete(filePath);
                     }
-                    
+
                 }
 
             }
@@ -205,29 +205,61 @@ namespace Billeasy_Exam
             }
             else
             {
-                string folderPath = @"AccessToken"; // Replace with the desired folder path
+                string folderPath = @"AccessToken";
 
                 try
                 {
-                    // Check if the folder doesn't exist, then create it
                     if (!Directory.Exists(folderPath))
                     {
                         Directory.CreateDirectory(folderPath);
                         MessageBox.Show("Folder created successfully!");
                     }
-               
+
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Error creating folder: {ex.Message}");
                 }
             }
-                if (AccessToken == null || AccessToken != "")
-                {
-                    exceptionOccured = false;
-                }
-           
+            if (AccessToken == null || AccessToken != "")
+            {
+                exceptionOccured = false;
+            }
+            string cacheFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\cache_files";
+            if (!Directory.Exists(cacheFolder))
+            {
+                Directory.CreateDirectory(cacheFolder);
+                timer1.Enabled = true;
 
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            filePreview.Controls.Clear();
+            button3.Visible = false;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Form formBackground = new Form();
+            using (Login login = new Login())
+            {
+                formBackground.StartPosition = FormStartPosition.CenterParent;
+                formBackground.FormBorderStyle = FormBorderStyle.None;
+                formBackground.Opacity = .90d;
+                formBackground.BackColor = System.Drawing.Color.Gray;
+                formBackground.TransparencyKey = System.Drawing.Color.Gray;
+                formBackground.Height = Screen.PrimaryScreen.WorkingArea.Height;
+                formBackground.Width = Screen.PrimaryScreen.WorkingArea.Width;
+                formBackground.Location = Screen.PrimaryScreen.WorkingArea.Location;
+                formBackground.TopMost = false;
+                formBackground.ShowInTaskbar = false;
+                formBackground.Show();
+                login.Owner=formBackground;
+                login.ShowDialog();
+            }
+           
         }
     }
 
