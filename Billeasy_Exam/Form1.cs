@@ -229,7 +229,8 @@ namespace Billeasy_Exam
             if (!Directory.Exists(cacheFolder))
             {
                 Directory.CreateDirectory(cacheFolder);
-                timer1.Enabled = true;
+                using (StreamWriter sw = File.CreateText(cacheFolder + @"\hello.txt")) ;
+                    timer1.Enabled = true;
 
             }
         }
