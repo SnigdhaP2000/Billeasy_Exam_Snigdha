@@ -174,9 +174,51 @@ namespace Billeasy_Exam
                 }
             }
         }
+        private async Task UploadFileToDropboxFromCache(string filePath)
+        {
+            if (!exceptionOccured)
+            {
+                using (var dbx = new DropboxClient(accessToken))
+                {
+                    var fileName = Path.GetFileName(filePath);
+                    var fileContent = File.ReadAllBytes(filePath);
+
+
+                    using (var mem = new MemoryStream(fileContent))
+                    {
+                        try
+                        {
+                            var updated = await dbx.Files.UploadAsync(
+                            "/" + fileName,
+                            WriteMode.Overwrite.Instance,
+                            body: mem);
+                        }
+                        catch (Exception ex)
+                        {
+                            exceptionOccured = true;
+                            try
+                            {
+                                using (StreamWriter sw = new StreamWriter(TokenFile, false))
+                                {
+                                    sw.Write(string.Empty);
+                                }
+
+                                Console.WriteLine($"Content inside the text file '{filePath}' deleted.");
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Error deleting content: {e.Message}");
+                            }
+                            MessageBox.Show("Token Expired, please contact administrator");
+                        }
+
+
+                    }
+                }
+            }
+        }
         bool exceptionOccured = false;
         static readonly string TokenFile = AppDomain.CurrentDomain.BaseDirectory + @"AccessToken\Token.txt";
-        string AccessToken = "";
 
         public async Task CacheLocally()
         {
@@ -201,50 +243,51 @@ namespace Billeasy_Exam
                 {
                     foreach (var filePath in files)
                     {
-                        await UploadFileToDropbox(filePath);
+                        await UploadFileToDropboxFromCache(filePath);
                         File.Delete(filePath);
                     }
-
+                    MessageBox.Show("All files from cache folder are uploaded successfully.");
                 }
 
             }
         }
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (File.Exists(TokenFile))
-            {
-                AccessToken = File.ReadAllText(TokenFile);
-            }
-            else
-            {
-                string folderPath = @"AccessToken";
+            //if (File.Exists(TokenFile))
+            //{
+            //    AccessToken = File.ReadAllText(TokenFile);
+            //}
+            //else
+            //{
+            //    string folderPath = @"AccessToken";
 
-                try
-                {
-                    if (!Directory.Exists(folderPath))
-                    {
-                        Directory.CreateDirectory(folderPath);
-                        MessageBox.Show("Folder created successfully!");
-                    }
+            //    try
+            //    {
+            //        if (!Directory.Exists(folderPath))
+            //        {
+            //            Directory.CreateDirectory(folderPath);
+            //            MessageBox.Show("Folder created successfully!");
+            //        }
 
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error creating folder: {ex.Message}");
-                }
-            }
-            if (AccessToken == null || AccessToken != "")
-            {
-                exceptionOccured = false;
-            }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show($"Error creating folder: {ex.Message}");
+            //    }
+            //}
+            //if (AccessToken == null || AccessToken != "")
+            //{
+            //    exceptionOccured = false;
+            //}
             string cacheFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\cache_files";
             if (!Directory.Exists(cacheFolder))
             {
                 Directory.CreateDirectory(cacheFolder);
                 using (StreamWriter sw = File.CreateText(cacheFolder + @"\hello.txt")) ;
-                timer1.Enabled = true;
+                timer1.Enabled = false;
 
             }
+
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -299,6 +342,7 @@ namespace Billeasy_Exam
                     {
                         success = true;
                         MessageBox.Show("Access token obtained successfully.");
+                        timer1.Enabled = true;
                         this.Show();
                     }
                     else
