@@ -96,9 +96,9 @@
             // 
             this.filePreview.AutoScroll = true;
             this.filePreview.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.filePreview.Location = new System.Drawing.Point(0, 209);
+            this.filePreview.Location = new System.Drawing.Point(0, 191);
             this.filePreview.Name = "filePreview";
-            this.filePreview.Size = new System.Drawing.Size(859, 196);
+            this.filePreview.Size = new System.Drawing.Size(859, 214);
             this.filePreview.TabIndex = 5;
             // 
             // timer1

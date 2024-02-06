@@ -11,19 +11,20 @@ using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.Data.Common;
 using System.IO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Billeasy_Exam
 {
     public partial class Login : Form
     {
+        public string auth="";
         public Login()
         {
             InitializeComponent();
         }
-
+        
         private void button1_Click(object sender, EventArgs e)
         {
-            Form1 form = new Form1();
             DataTable dt = Authenticate(txtUserName.Text, txtPassword.Text);
             if (dt.Rows.Count > 0)
             {
@@ -32,10 +33,14 @@ namespace Billeasy_Exam
             }
             else
             {
-                MessageBox.Show("Invalid User!");
+                MessageBox.Show("Please check your credentials.");
             }
         }
 
+        public string TextBoxValue
+        {
+            get { return txtCode.Text; }
+        }
         private void txtPassword_KeyPress(object sender, KeyPressEventArgs e)
         {
             Form1 form = new Form1();
@@ -49,7 +54,7 @@ namespace Billeasy_Exam
                 }
                 else
                 {
-                    MessageBox.Show("Invalid User!");
+                    MessageBox.Show("Please check your credentials.");
                 }
             }
         }
@@ -68,11 +73,22 @@ namespace Billeasy_Exam
             sda.Fill(dt);
             return dt;
 
-        }
 
+        }
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            panel2.Visible = true;
+        }
+
+        private void closeNoti_Click(object sender, EventArgs e)
+        {
+            panel2.Visible = false;
+        }
     }
+
 }
