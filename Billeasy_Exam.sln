@@ -5,7 +5,9 @@ VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billeasy_Exam", "Billeasy_Exam\Billeasy_Exam.csproj", "{9CFC58F8-9202-4A0B-B074-B4428265706C}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BillEasy_Setup", "BillEasy_Setup\BillEasy_Setup.vdproj", "{CDF47739-AAC2-4A77-B90E-204CFF833076}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BillEasy", "BillEasy\BillEasy.vdproj", "{B875ADC2-B765-4421-A6B0-9A39EBE4088F}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BillEasy2", "BillEasy2\BillEasy2.vdproj", "{356D18E0-38B2-44EE-A394-3724282A6518}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,8 +19,10 @@ Global
 		{9CFC58F8-9202-4A0B-B074-B4428265706C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CFC58F8-9202-4A0B-B074-B4428265706C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CFC58F8-9202-4A0B-B074-B4428265706C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDF47739-AAC2-4A77-B90E-204CFF833076}.Debug|Any CPU.ActiveCfg = Debug
-		{CDF47739-AAC2-4A77-B90E-204CFF833076}.Release|Any CPU.ActiveCfg = Release
+		{B875ADC2-B765-4421-A6B0-9A39EBE4088F}.Debug|Any CPU.ActiveCfg = Debug
+		{B875ADC2-B765-4421-A6B0-9A39EBE4088F}.Release|Any CPU.ActiveCfg = Release
+		{356D18E0-38B2-44EE-A394-3724282A6518}.Debug|Any CPU.ActiveCfg = Debug
+		{356D18E0-38B2-44EE-A394-3724282A6518}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

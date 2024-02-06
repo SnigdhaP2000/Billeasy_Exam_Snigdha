@@ -35,10 +35,11 @@ namespace Billeasy_Exam
             InitializeComponent();
         }
 
-        string newformat = "";
         string currFile = "";
+        string newformat = "";
         private void button1_Click(object sender, EventArgs e)
         {
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string FileName = openFileDialog1.FileName;
@@ -99,6 +100,7 @@ namespace Billeasy_Exam
 
         protected async void save_button_Click(object sender, EventArgs e)
         {
+
             Button button = sender as Button;
 
             bool CheckConnectivity = IsConnectedToInternet();
@@ -107,15 +109,20 @@ namespace Billeasy_Exam
                 if (sender is Control control)
                 {
                     Panel parentPanel = control.Parent as Panel;
-                    MessageBox.Show("Connected");
+                    //MessageBox.Show("Connected");
                     await UploadFileToDropbox(parentPanel.Name);
                 }
 
             }
             else
             {
-                MessageBox.Show("Not Connected");
-                CacheLocally();
+                //MessageBox.Show("Not Connected");
+                if (sender is Control control)
+                {
+                    Panel parentPanel = control.Parent as Panel;
+                    //MessageBox.Show("Connected");
+                    CacheLocally(parentPanel.Name);
+                }
 
             }
 
@@ -209,7 +216,7 @@ namespace Billeasy_Exam
                             {
                                 Console.WriteLine($"Error deleting content: {e.Message}");
                             }
-                            MessageBox.Show("Token Expired, please contact administrator");
+                            //MessageBox.Show("Token Expired, please contact administrator");
                         }
 
 
@@ -220,13 +227,14 @@ namespace Billeasy_Exam
         bool exceptionOccured = false;
         static readonly string TokenFile = AppDomain.CurrentDomain.BaseDirectory + @"AccessToken\Token.txt";
 
-        public async Task CacheLocally()
+        public async Task CacheLocally(string panelName)
         {
-            string appDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\cache_files\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss") + Path.GetExtension(currFile);
 
-            if (File.Exists(currFile))
+            string appDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\cache_files\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss") + Path.GetExtension(panelName);
+
+            if (File.Exists(panelName))
             {
-                File.Copy(currFile, appDirectory, true);
+                File.Copy(panelName, appDirectory, true);
             }
         }
 
@@ -253,38 +261,12 @@ namespace Billeasy_Exam
         }
         private void timer2_Tick(object sender, EventArgs e)
         {
-            //if (File.Exists(TokenFile))
-            //{
-            //    AccessToken = File.ReadAllText(TokenFile);
-            //}
-            //else
-            //{
-            //    string folderPath = @"AccessToken";
-
-            //    try
-            //    {
-            //        if (!Directory.Exists(folderPath))
-            //        {
-            //            Directory.CreateDirectory(folderPath);
-            //            MessageBox.Show("Folder created successfully!");
-            //        }
-
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show($"Error creating folder: {ex.Message}");
-            //    }
-            //}
-            //if (AccessToken == null || AccessToken != "")
-            //{
-            //    exceptionOccured = false;
-            //}
             string cacheFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Documents\cache_files";
             if (!Directory.Exists(cacheFolder))
             {
                 Directory.CreateDirectory(cacheFolder);
                 using (StreamWriter sw = File.CreateText(cacheFolder + @"\hello.txt")) ;
-                timer1.Enabled = false;
+
 
             }
 
@@ -299,23 +281,17 @@ namespace Billeasy_Exam
         private async void Form1_Load(object sender, EventArgs e)
         {
             bool success = false;
-
             while (!success)
             {
                 try
                 {
-                    // Generate a random state for security
                     string state = Guid.NewGuid().ToString();
 
-                    // Build the authorization URL
                     string authorizationUrl = $"{AuthorizationEndpoint}?client_id={ClientId}&response_type=code&redirect_uri={RedirectUri}&state={state}";
 
-                    // Open the URL in the default system web browser
                     System.Diagnostics.Process.Start(authorizationUrl);
 
-                    // Wait for the user to complete the authentication (you may need to implement a mechanism for this)
 
-                    // Simulate user input (replace with your actual authorization code)
                     Form formBackground = new Form();
                     using (Login login = new Login())
                     {
@@ -338,12 +314,12 @@ namespace Billeasy_Exam
                     string authorizationCode = childFormValue;
 
                     accessToken = await ExchangeCodeForTokenAsync(authorizationCode);
-                    if(accessToken != null)
+                    if (accessToken != null)
                     {
-                        success = true;
                         MessageBox.Show("Access token obtained successfully.");
-                        timer1.Enabled = true;
                         this.Show();
+                        success = true;
+                        timer1.Enabled = true;
                     }
                     else
                     {
@@ -351,6 +327,7 @@ namespace Billeasy_Exam
                         this.Hide();
                     }
                 }
+
                 catch (Exception ex)
                 {
                     MessageBox.Show($"An error occurred: {ex.Message}");
